@@ -4,7 +4,7 @@
 <div class="admin-layout">
   <?php echo $__env->make('admin._sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
   <main class="admin-main">
-    <div class="admin-topbar">
+    <div class="admin-topbar"><button class="sidebar-toggle-btn" onclick="toggleSidebar()" style="margin-inline-end:8px"><i class="fas fa-bars"></i></button>
       <h1 style="font-size:20px;font-weight:800"><i class="fas fa-file-prescription"></i> <?php echo e(app()->getLocale()==='ar'?'الروشيتات':'Prescriptions'); ?></h1>
     </div>
     <div class="admin-content">

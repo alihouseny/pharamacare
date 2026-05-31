@@ -156,4 +156,31 @@ class ProductController extends Controller {
             'product','salesByMonth','totalSold','totalRevenue','totalOrders','batches','recentOrders'
         ));
     }
+
+
+    public function scanner() {
+        return view('admin.products.scanner');
+    }
+    public function barcodeLookup(\Illuminate\Http\Request $request) {
+        $product = \App\Models\Product::where('barcode', $request->barcode)
+            ->orWhere('name_ar','like','%'.$request->barcode.'%')
+            ->with('category')->first();
+
+        if (!$product) {
+            return response()->json(['found' => false]);
+        }
+        return response()->json([
+            'found'   => true,
+            'product' => [
+                'id'         => $product->id,
+                'name'       => $product->name_ar,
+                'ingredient' => $product->active_ingredient,
+                'price'      => number_format($product->current_price, 2),
+                'stock'      => $product->stock,
+                'min_stock'  => $product->min_stock_alert,
+                'category'   => $product->category?->name_ar,
+                'image'      => $product->image ? asset('storage/'.$product->image) : null,
+            ]
+        ]);
+    }
 }

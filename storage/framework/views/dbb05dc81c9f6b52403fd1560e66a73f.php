@@ -4,7 +4,7 @@
 <div class="admin-layout">
   <?php echo $__env->make('admin._sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
   <main class="admin-main">
-    <div class="admin-topbar">
+    <div class="admin-topbar"><button class="sidebar-toggle-btn" onclick="toggleSidebar()" style="margin-inline-end:8px"><i class="fas fa-bars"></i></button>
       <h1 style="font-size:20px;font-weight:800"><i class="fas fa-pills"></i> <?php echo e(app()->getLocale()==='ar'?'المنتجات':'Products'); ?></h1>
       <a href="<?php echo e(route('admin.products.create')); ?>" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> <?php echo e(app()->getLocale()==='ar'?'منتج جديد':'New Product'); ?></a>
     </div>
@@ -75,7 +75,7 @@
               <td><span class="badge <?php echo e($p->is_active?'badge-green':'badge-gray'); ?>"><?php echo e($p->is_active?'Active':'Inactive'); ?></span></td>
               <td>
                 <div style="display:flex;gap:6px">
-                  <a href="<?php echo e(route('admin.products.edit',$p)); ?>" class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></a>
+                  <a href="<?php echo e(route('admin.products.analytics',$p)); ?>" class="btn btn-outline btn-sm" title="<?php echo e(app()->getLocale()==='ar'?'تحليل':'Analytics'); ?>"><i class="fas fa-chart-bar"></i></a><a href="<?php echo e(route('admin.products.edit',$p)); ?>" class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></a>
                   <a href="<?php echo e(route('admin.products.expiry',$p)); ?>" class="btn btn-outline btn-sm" title="<?php echo e(app()->getLocale()==='ar'?'الصلاحية':'Expiry'); ?>"><i class="fas fa-calendar-times"></i></a>
                 </div>
               </td>
