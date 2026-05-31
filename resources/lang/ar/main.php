@@ -1,0 +1,86 @@
+<?php
+return [
+    // Navigation
+    'home'              => 'الرئيسية',
+    'shop'              => 'المتجر',
+    'categories'        => 'الأقسام',
+    'cart'              => 'السلة',
+    'checkout'          => 'الدفع',
+    'my_account'        => 'حسابي',
+    'orders'            => 'طلباتي',
+    'prescriptions'     => 'الروشيتات',
+    'subscriptions'     => 'اشتراكاتي',
+    'logout'            => 'تسجيل الخروج',
+    'login'             => 'تسجيل الدخول',
+    'register'          => 'إنشاء حساب',
+    'search'            => 'بحث...',
+    'search_by'         => 'ابحث بالاسم أو المادة الفعالة',
+
+    // Products
+    'add_to_cart'       => 'أضف للسلة',
+    'buy_now'           => 'اشتري الآن',
+    'out_of_stock'      => 'غير متوفر',
+    'requires_prescription' => 'يستلزم وصفة طبية',
+    'prescription_required' => 'مطلوب روشيتة طبية',
+    'active_ingredient' => 'المادة الفعالة',
+    'manufacturer'      => 'الشركة المصنعة',
+    'dosage_form'       => 'شكل الدواء',
+    'strength'          => 'التركيز',
+    'package_size'      => 'حجم العبوة',
+    'in_stock'          => 'متوفر',
+    'low_stock'         => 'كمية محدودة',
+    'featured'          => 'مميز',
+    'on_sale'           => 'عرض خاص',
+
+    // Cart & Checkout
+    'your_cart'         => 'سلة التسوق',
+    'cart_empty'        => 'سلتك فارغة',
+    'continue_shopping' => 'متابعة التسوق',
+    'subtotal'          => 'المجموع الفرعي',
+    'delivery_fee'      => 'رسوم التوصيل',
+    'discount'          => 'الخصم',
+    'total'             => 'الإجمالي',
+    'place_order'       => 'تأكيد الطلب',
+    'delivery_address'  => 'عنوان التوصيل',
+    'payment_method'    => 'طريقة الدفع',
+    'cod'               => 'الدفع عند الاستلام',
+    'card'              => 'بطاقة ائتمان',
+
+    // Orders
+    'order_number'      => 'رقم الطلب',
+    'order_date'        => 'تاريخ الطلب',
+    'order_status'      => 'حالة الطلب',
+    'track_order'       => 'تتبع الطلب',
+
+    // Prescriptions
+    'upload_prescription' => 'رفع الروشيتة',
+    'prescription_status' => 'حالة الروشيتة',
+    'pending_review'    => 'قيد المراجعة',
+    'approved'          => 'موافق عليها',
+    'rejected'          => 'مرفوضة',
+
+    // Subscriptions
+    'monthly_subscription' => 'الاشتراك الشهري',
+    'subscribe_now'     => 'اشترك الآن',
+    'frequency'         => 'التكرار',
+    'next_delivery'     => 'التوصيل القادم',
+    'every_x_days'      => 'كل :days يوم',
+    'pause'             => 'إيقاف مؤقت',
+    'cancel_subscription' => 'إلغاء الاشتراك',
+
+    // General
+    'save'              => 'حفظ',
+    'cancel'            => 'إلغاء',
+    'edit'              => 'تعديل',
+    'delete'            => 'حذف',
+    'confirm'           => 'تأكيد',
+    'back'              => 'رجوع',
+    'view_all'          => 'عرض الكل',
+    'loading'           => 'جاري التحميل...',
+    'success'           => 'تم بنجاح',
+    'error'             => 'حدث خطأ',
+    'free'              => 'مجاناً',
+    'sar'               => 'ج.م',
+    'wallet'            => 'محفظة إلكترونية',
+    'pending'           => 'قيد الانتظار',
+];
