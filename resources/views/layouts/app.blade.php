@@ -4,7 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>@yield('title', config('app.name')) — {{ app()->getLocale()==='ar'?'فارماكير':'PharmaCare' }}</title>
+  <meta name="theme-color" content="#00897B">
+  <link rel="manifest" href="/manifest.json">
+  <title>@yield('title', 'PharmaCare') — {{ app()->getLocale()==='ar'?'فارماكير':'PharmaCare' }}</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="{{ asset('css/pharmacy.css') }}">
@@ -12,15 +14,33 @@
 </head>
 <body class="{{ app()->getLocale()==='ar'?'rtl':'ltr' }}">
 
+  {{-- TOPBAR --}}
+  <div class="topbar">
+    <div class="container">
+      <span>
+        <i class="fas fa-phone-alt"></i>
+        <a href="tel:+201229662819" style="color:rgba(255,255,255,.9);text-decoration:none">01229662819</a>
+        &nbsp;|&nbsp;
+        <a href="https://wa.me/201229662819" target="_blank" style="color:rgba(255,255,255,.9);text-decoration:none">
+          <i class="fab fa-whatsapp" style="color:#25D366"></i> WhatsApp
+        </a>
+      </span>
+      <span>
+        <i class="fas fa-clock"></i>
+        {{ app()->getLocale()==='ar'?'السبت – الخميس: ٩ص – ١١م':'Sat – Thu: 9AM – 11PM' }}
+      </span>
+    </div>
+  </div>
+
   @include('layouts.navigation')
 
   @if(session('success'))
-    <div style="background:#E8F5E9;border-bottom:2px solid var(--success);padding:12px 20px;text-align:center;color:var(--success);font-weight:600;font-size:14px">
+    <div style="background:#E8F5E9;border-bottom:2px solid var(--success);padding:10px 20px;text-align:center;color:var(--success);font-weight:600;font-size:14px">
       <i class="fas fa-check-circle"></i> {{ session('success') }}
     </div>
   @endif
   @if(session('error'))
-    <div style="background:#FFEBEE;border-bottom:2px solid var(--danger);padding:12px 20px;text-align:center;color:var(--danger);font-weight:600;font-size:14px">
+    <div style="background:#FFEBEE;border-bottom:2px solid var(--danger);padding:10px 20px;text-align:center;color:var(--danger);font-weight:600;font-size:14px">
       <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
     </div>
   @endif
@@ -32,23 +52,140 @@
 
   @include('layouts.footer')
 
-  {{-- ADMIN SIDEBAR TOGGLE --}}
+  {{-- DRUG INTERACTION ALERT --}}
+  <div id="interaction-alert" class="interaction-alert">
+    <i class="fas fa-exclamation-triangle" style="font-size:20px;flex-shrink:0;margin-top:2px"></i>
+    <div style="flex:1">
+      <div style="font-weight:800;font-size:14px;margin-bottom:4px">{{ app()->getLocale()==='ar'?'تحذير: تفاعل دوائي!':'Warning: Drug Interaction!' }}</div>
+      <div id="interaction-msg" style="font-size:13px;opacity:.9"></div>
+    </div>
+    <button onclick="this.closest('.interaction-alert').classList.remove('show')" style="background:none;border:none;color:#fff;cursor:pointer;font-size:18px;flex-shrink:0;padding:0">✕</button>
+  </div>
+
+  {{-- PWA INSTALL --}}
+  <div id="pwa-install-banner">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:24px">💊</span>
+      <div>
+        <div style="font-weight:800;font-size:14px">{{ app()->getLocale()==='ar'?'ثبّت فارماكير على هاتفك':'Install PharmaCare App' }}</div>
+        <div style="font-size:12px;opacity:.8">{{ app()->getLocale()==='ar'?'وصول سريع بدون متصفح':'Quick access without browser' }}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button id="pwa-install-btn" style="background:#fff;color:var(--primary);border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">{{ app()->getLocale()==='ar'?'تثبيت':'Install' }}</button>
+      <button onclick="this.closest('#pwa-install-banner').classList.remove('show');localStorage.setItem('pwa-dismissed','1')" style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer">✕</button>
+    </div>
+  </div>
+
   <script>
+  // ── SIDEBAR TOGGLE ────────────────────────────────────
   function toggleSidebar() {
-    const sb  = document.getElementById('adminSidebar');
-    const ov  = document.getElementById('sidebar-overlay');
+    var sb = document.getElementById('adminSidebar');
+    var ov = document.getElementById('sidebar-overlay');
     if (!sb) return;
     sb.classList.toggle('sidebar-open');
     if (ov) ov.classList.toggle('show');
   }
   function closeSidebar() {
-    const sb = document.getElementById('adminSidebar');
-    const ov = document.getElementById('sidebar-overlay');
+    var sb = document.getElementById('adminSidebar');
+    var ov = document.getElementById('sidebar-overlay');
     if (sb) sb.classList.remove('sidebar-open');
     if (ov) ov.classList.remove('show');
   }
-  // Close on ESC
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeSidebar(); });
+
+  // ── CART AJAX ─────────────────────────────────────────
+  async function addToCart(productId, btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    try {
+      var res  = await fetch('/cart/add', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}','Accept':'application/json'},
+        body: JSON.stringify({product_id: productId, qty: 1})
+      });
+      var data = await res.json();
+      btn.disabled = false;
+      if (data.success) {
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        updateCartBadge(data.count);
+        if (typeof updateCartSidebar === 'function') updateCartSidebar(data);
+        checkCartInteractions();
+        setTimeout(function(){ btn.innerHTML = '<i class="fas fa-cart-plus"></i>'; }, 1500);
+      } else {
+        btn.innerHTML = '<i class="fas fa-cart-plus"></i>';
+      }
+    } catch(e) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-cart-plus"></i>';
+    }
+  }
+  function updateCartBadge(count) {
+    document.querySelectorAll('.cart-badge').forEach(function(b) {
+      b.textContent = count;
+      b.style.display = count > 0 ? 'flex' : 'none';
+    });
+  }
+
+  // ── WISHLIST AJAX ─────────────────────────────────────
+  async function toggleWishlist(productId, btn) {
+    @auth
+    var res  = await fetch('/wishlist/'+productId+'/toggle', {
+      method: 'POST',
+      headers: {'X-CSRF-TOKEN':'{{ csrf_token() }}','Accept':'application/json'}
+    });
+    var data = await res.json();
+    if (data.success) {
+      var icon = btn.querySelector('i');
+      btn.classList.toggle('active', data.in_wishlist);
+      icon.className = data.in_wishlist ? 'fas fa-heart' : 'far fa-heart';
+    }
+    @else
+    window.location = '/login';
+    @endauth
+  }
+
+  // ── DRUG INTERACTIONS ─────────────────────────────────
+  async function checkCartInteractions() {
+    try {
+      var res  = await fetch('/interactions/cart', {headers:{'Accept':'application/json'}});
+      var data = await res.json();
+      if (data.has_interactions && data.interactions.length) {
+        var alert = document.getElementById('interaction-alert');
+        var first = data.interactions[0];
+        document.getElementById('interaction-msg').textContent = first.description;
+        alert.className = 'interaction-alert show interaction-severity-' + first.severity;
+        setTimeout(function(){ alert.classList.remove('show'); }, 8000);
+      }
+    } catch(e) {}
+  }
+
+  // ── DARK MODE ─────────────────────────────────────────
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    var icon = document.getElementById('theme-icon');
+    if (icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+  }
+  async function toggleTheme() {
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try { await fetch('/theme', {method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({theme:next})}); } catch(e){}
+  }
+  applyTheme(localStorage.getItem('theme') || '{{ session("theme","light") }}');
+
+  // ── PWA ───────────────────────────────────────────────
+  var deferredPrompt;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault(); deferredPrompt = e;
+    if (!localStorage.getItem('pwa-dismissed'))
+      setTimeout(function(){ document.getElementById('pwa-install-banner').classList.add('show'); }, 3000);
+  });
+  document.getElementById('pwa-install-btn')?.addEventListener('click', async function() {
+    if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; document.getElementById('pwa-install-banner').classList.remove('show'); }
+  });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function(){});
   </script>
 
   @stack('scripts')

@@ -101,7 +101,7 @@ class ShopController extends Controller {
     }
 
     public function home() {
-        $categories  = Category::where('is_active', true)->whereNull('parent_id')->orderBy('sort_order')->get();
+        $categories  = Category::where('is_active', true)->whereNull('parent_id')->withCount('products')->orderBy('sort_order')->get();
         $featured    = Product::where('is_featured', true)->where('is_active', true)->limit(8)->get();
         $newArrivals = Product::where('is_active', true)->latest()->limit(8)->get();
         $onSale      = Product::whereNotNull('sale_price')->where('is_active', true)->limit(4)->get();
